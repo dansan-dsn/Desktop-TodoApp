@@ -7,46 +7,53 @@ class Users:
         self.password = password
 
     def register(self):
-        conn = sqlite3.connect('todoApp.db')
-        cursor = conn.cursor()
+        try:
+            conn = sqlite3.connect('todoApp.db')
+            cursor = conn.cursor()
 
-        # Ensure username is passed correctly as a tuple for parameterized query
-        cursor.execute('SELECT * FROM users WHERE username = ?', (self.username,))
-        existing_user = cursor.fetchone()
+            # Ensure username is passed correctly as a tuple for parameterized query
+            cursor.execute('SELECT * FROM users WHERE username = ?', (self.username,))
+            existing_user = cursor.fetchone()
 
-        if existing_user:
-            print("Username not available.")
-        else:
-            # Hash the password before storing
-            hashed_password = bcrypt.hashpw(self.password.encode('utf-8'), bcrypt.gensalt())
-            cursor.execute('INSERT INTO users (username, password) VALUES (?, ?)', (self.username, hashed_password))
-            conn.commit()
-            print("User registered successfully.")
+            if existing_user:
+                print("Username not available.")
+            else:
+                # Hash the password before storing
+                hashed_password = bcrypt.hashpw(self.password.encode('utf-8'), bcrypt.gensalt())
+                cursor.execute('INSERT INTO users (username, password) VALUES (?, ?)', (self.username, hashed_password))
+                conn.commit()
+                print("User registered successfully.")
 
-        conn.close()
+            conn.close()
+        except Exception as e:
+            print(f"Error registering user: {e}")
 
     @staticmethod
     def login(username, password):
-        conn = sqlite3.connect('todoApp.db')
-        cursor = conn.cursor()
+        try:
+            conn = sqlite3.connect('todoApp.db')
+            cursor = conn.cursor()
 
-        # Fetch only the password field from the users table
-        cursor.execute('SELECT password FROM users WHERE username = ?', (username,))
-        user = cursor.fetchone()
+            # Fetch only the password field from the users table
+            cursor.execute('SELECT password FROM users WHERE username = ?', (username,))
+            user = cursor.fetchone()
 
-        if user:
-            # Compare entered password with stored password hash
-            if bcrypt.checkpw(password.encode('utf-8'), user[0]):  # user[0] contains the hashed password
-                print("Login successful.")
-                conn.close()
-                return True
+            if user:
+                # Compare entered password with stored password hash
+                if bcrypt.checkpw(password.encode('utf-8'), user[0]):  # user[0] contains the hashed password
+                    print("Login successful.")
+                    conn.close()
+                    return True
+                else:
+                    print("Incorrect password.")
             else:
-                print("Incorrect password.")
-        else:
-            print("User not found.")
+                print("User not found.")
 
-        conn.close()
-        return False
+            conn.close()
+            return False
+        except Exception as e:
+            print(f"Error logging in user: {e}")
+            return False
 
 
 # Main Program

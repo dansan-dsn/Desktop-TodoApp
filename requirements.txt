@@ -1,5 +1,5 @@
 python 3.6+
-MongoDB
+SQLite3
 pymongo 
 bcrypt
 tkinter
